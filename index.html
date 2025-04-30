@@ -1,36 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Claimable Token Link</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Token Claim Link (Monad)</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
-    <h1>Claimable Token Link (Monad Testnet)</h1>
+  <div class="container">
+    <header>
+      <h1>Claimable Token Link</h1>
+      <p class="subheading">Create and share claim links for tokens on Monad Testnet</p>
+      <button id="connectWalletBtn" class="primary">Connect Wallet</button>
+      <div id="walletInfo" class="hidden">
+        Connected as: <span id="walletAddress"></span>
+      </div>
+    </header>
 
-    <div id="walletSection">
-        <button id="connectWalletBtn">Connect Wallet</button>
-        <p id="walletInfo" class="hidden">Connected as: <span id="walletAddress"></span></p>
-    </div>
+    <main>
+      <section class="card">
+        <h2>Create Claim Link</h2>
+        <p class="note">⚠️ 0.2 MON service fee applies for each claim link created.</p>
+        <label>Choose Token:</label>
+        <select id="tokenSelect">
+          <option value="MON">MON (Native)</option>
+          <option value="0xE0590015A873bF326bd645c3E1266d4db41C4E6B">CHOG</option>
+          <option value="0x0F0BDEbF0F83cD1EE3974779Bcb7315f9808c714">DAK</option>
+          <option value="0xfe140e1dCe99Be9F4F15d657CD9b7BF622270C50">YAKI</option>
+        </select>
 
-    <h2>Create Claim Link</h2>
-    <p><strong>Note:</strong> Creating a link will charge 0.2 MON as a service fee.</p>
-    <label for="tokenSelect">Choose token:</label>
-    <select id="tokenSelect">
-        <option value="MON">MON (Native)</option>
-        <option value="0xE0590015A873bF326bd645c3E1266d4db41C4E6B">CHOG</option>
-        <option value="0x0F0BDEbF0F83cD1EE3974779Bcb7315f9808c714">DAK</option>
-        <option value="0xfe140e1dCe99Be9F4F15d657CD9b7BF622270C50">YAKI</option>
-    </select>
-    <input type="text" id="amount" placeholder="Amount" />
-    <button id="createClaimLinkBtn">Create Claim Link</button>
-    <p id="claimLinkResult"></p>
+        <label>Amount:</label>
+        <input type="text" id="amount" placeholder="Enter amount" />
 
-    <h2>Claim Tokens</h2>
-    <input type="text" id="claimLink" placeholder="Paste claimId here" />
-    <button id="claimBtn">Claim</button>
+        <button id="createClaimLinkBtn" class="primary">Create Claim Link</button>
+        <p id="claimLinkResult" class="success"></p>
+      </section>
 
-    <script src="script.js"></script>
+      <section class="card">
+        <h2>Claim Token</h2>
+        <input type="text" id="claimLink" placeholder="Paste claim ID here" />
+        <button id="claimBtn" class="primary">Claim</button>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
