@@ -1,61 +1,75 @@
 const contractAddress = "0xb5e0d98108e7D39EA4600DeA7Dd61fbdaec8993e";
-const contractABI = [ /* ...same as yours... */ ];
-
-const tokenList = {
-    "MONAD": "0x0000000000000000000000000000000000000000", // Native
-    "CHOG": "0xE0590015A873bF326bd645c3E1266d4db41C4E6B",
-    "DAK": "0x0F0BDEbF0F83cD1EE3974779Bcb7315f9808c714",
-    "YAKI": "0xfe140e1dCe99Be9F4F15d657CD9b7BF622270C50"
-};
+const contractABI = [
+    {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [
+            { "internalType": "bytes32", "name": "claimId", "type": "bytes32" }
+        ],
+        "name": "claim",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" },
+            { "internalType": "uint256", "name": "expireTime", "type": "uint256" },
+            { "internalType": "bytes32", "name": "claimId", "type": "bytes32" }
+        ],
+        "name": "createClaimLink",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "FEE",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
 
 let provider;
 let signer;
 let contract;
-let currentWalletAddress = null;
 
 async function connectWallet() {
     if (window.ethereum) {
         try {
             provider = new ethers.BrowserProvider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
             signer = await provider.getSigner();
-            currentWalletAddress = await signer.getAddress();
-            document.getElementById("walletAddress").innerText = currentWalletAddress;
+            const address = await signer.getAddress();
+            document.getElementById("walletAddress").innerText = address;
             document.getElementById("walletInfo").classList.remove("hidden");
             document.getElementById("connectWalletBtn").classList.add("hidden");
         } catch (error) {
             alert("Error connecting to wallet: " + error.message);
         }
     } else {
-        alert("Please install MetaMask!");
+        alert("MetaMask not found!");
     }
 }
 
 async function createClaimLink() {
-    console.log("Create Claim Link clicked");
-
-    const tokenSymbol = document.getElementById("tokenSelect").value;
-    const selectedTokenAddress = tokenList[tokenSymbol];
+    const tokenSelect = document.getElementById("tokenSelect");
+    const selectedToken = tokenSelect.value;
     const amount = document.getElementById("amount").value;
-
-    console.log("Selected token:", tokenSymbol);
-    console.log("Amount:", amount);
-
-    if (!amount || isNaN(amount)) {
-        alert("Please enter a valid amount");
-        return;
-    }
-
     const claimId = ethers.id("claim-" + Date.now());
-    const expireTime = Math.floor(Date.now() / 1000) + 3600;
+    const expireTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour expiry
 
     contract = new ethers.Contract(contractAddress, contractABI, signer);
 
     try {
         const fee = await contract.FEE();
-        console.log("Fee (in wei):", fee.toString());
-
         const tx = await contract.createClaimLink(
-            selectedTokenAddress,
+            selectedToken === "MON" ? ethers.ZeroAddress : selectedToken,
             ethers.parseUnits(amount, 18),
             expireTime,
             claimId,
@@ -63,14 +77,12 @@ async function createClaimLink() {
         );
         await tx.wait();
 
-        const claimLink = `${window.location.origin}/claim#${claimId}`;
-        alert(`✅ Claim link created!\nToken: ${tokenSymbol}\nAmount: ${amount}\nLink: ${claimLink}`);
+        const claimUrl = `${window.location.origin}/?claimId=${claimId}`;
+        document.getElementById("claimLinkResult").innerText = `Claim Link: ${claimUrl}`;
     } catch (error) {
-        console.error("Error:", error);
         alert("Error creating claim link: " + error.message);
     }
 }
-
 
 async function claimToken() {
     const claimId = document.getElementById("claimLink").value;
@@ -79,7 +91,7 @@ async function claimToken() {
     try {
         const tx = await contract.claim(claimId);
         await tx.wait();
-        alert("🎉 Token claimed successfully!");
+        alert("Token claimed successfully!");
     } catch (error) {
         alert("Error claiming token: " + error.message);
     }
