@@ -1,130 +1,66 @@
-const contractAddress = "0xb5e0d98108e7D39EA4600DeA7Dd61fbdaec8993e";
-const contractABI = [
-    {
-        "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "expireTime",
-                "type": "uint256"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "claimId",
-                "type": "bytes32"
-            }
-        ],
-        "name": "createClaimLink",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "claimId",
-                "type": "bytes32"
-            }
-        ],
-        "name": "claim",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Link Service</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Claim Link Service</h1>
 
-let provider;
-let signer;
-let contract;
-let currentWalletAddress = null;
+        <div id="walletInfo" class="hidden">
+            <p>Connected Wallet: <span id="walletAddress"></span></p>
+        </div>
+        
+        <div id="connectWallet">
+            <button id="connectWalletBtn">Connect Wallet</button>
+        </div>
 
-const feeAmount = ethers.utils.parseUnits("0.2", 18); // 0.2 MONAD
+        <div id="createClaimLinkForm" class="hidden">
+            <h2>Create Claim Link</h2>
 
-async function connectWallet() {
-    if (window.ethereum) {
-        try {
-            await window.ethereum.request({ method: "eth_requestAccounts" });
-            provider = new ethers.BrowserProvider(window.ethereum);
-            signer = provider.getSigner();
-            currentWalletAddress = await signer.getAddress();
-            document.getElementById("walletAddress").innerText = currentWalletAddress;
-            document.getElementById("walletInfo").classList.remove("hidden");
-            document.getElementById("connectWalletBtn").classList.add("hidden");
-            document.getElementById("createClaimLinkForm").classList.remove("hidden");
-            document.getElementById("claimForm").classList.remove("hidden");
-            document.getElementById("feeInfo").classList.remove("hidden");
-        } catch (error) {
-            alert("Error connecting to wallet: " + error);
-        }
-    } else {
-        alert("Please install MetaMask!");
-    }
-}
+            <label for="tokenSelect">Choose Token:</label>
+            <select id="tokenSelect">
+                <option value="0xE0590015A873bF326bd645c3E1266d4db41C4E6B">CHOG Token</option>
+                <option value="0x0F0BDEbF0F83cD1EE3974779Bcb7315f9808c714">DAK Token</option>
+                <option value="0xfe140e1dCe99Be9F4F15d657CD9b7BF622270C50">YAKI Token</option>
+                <option value="0">MONAD</option>
+            </select>
 
-async function createClaimLink() {
-    const selectedTokenAddress = document.getElementById("tokenSelect").value;
-    const amount = document.getElementById("amount").value;
-    const expireTime = document.getElementById("expireTime").value;
-    const claimId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`claim-${Date.now()}`));
-    const expireTimestamp = Math.floor(Date.now() / 1000) + expireTime * 3600; // hours to seconds
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" placeholder="Amount" required>
 
-    contract = new ethers.Contract(contractAddress, contractABI, signer);
+            <label for="expireTime">Expire Time (hours):</label>
+            <input type="number" id="expireTime" placeholder="Expiration time (hours)" required>
 
-    try {
-        let tx;
-        if (selectedTokenAddress === "0") {
-            // Using MONAD, no token transfer required
-            tx = await contract.createClaimLink(selectedTokenAddress, ethers.utils.parseUnits(amount, 18), expireTimestamp, claimId, {
-                value: feeAmount
-            });
-        } else {
-            // Using ERC20 token
-            const token = new ethers.Contract(selectedTokenAddress, [
-                "function approve(address spender, uint256 amount) public returns (bool)"
-            ], signer);
-            await token.approve(contractAddress, ethers.utils.parseUnits(amount, 18));
+            <button id="createClaimLinkBtn">Create Claim Link</button>
+        </div>
 
-            tx = await contract.createClaimLink(selectedTokenAddress, ethers.utils.parseUnits(amount, 18), expireTimestamp, claimId, {
-                value: feeAmount
-            });
-        }
+        <div id="claimForm" class="hidden">
+            <h2>Claim Token</h2>
+            <label for="claimLink">Enter Claim ID:</label>
+            <input type="text" id="claimLink" placeholder="Claim ID" required>
 
-        await tx.wait();
-        alert("Claim link created successfully! Claim ID: " + claimId);
-    } catch (error) {
-        alert("Error creating claim link: " + error);
-    }
-}
+            <button id="claimBtn">Claim Token</button>
+        </div>
 
-async function claimToken() {
-    const claimId = document.getElementById("claimLink").value;
+        <p id="feeInfo" class="hidden">The service fee is 0.2 MONAD for creating the claim link.</p>
 
-    contract = new ethers.Contract(contractAddress, contractABI, signer);
+        <div id="claimLinkInfo" class="hidden">
+            <p><strong>Token:</strong> <span id="claimToken"></span></p>
+            <p><strong>Amount:</strong> <span id="claimAmount"></span></p>
+            <p><strong>Expire Time:</strong> <span id="claimExpireTime"></span></p>
+        </div>
 
-    try {
-        const tx = await contract.claim(claimId);
-        await tx.wait();
-        alert("Token claimed successfully!");
-    } catch (error) {
-        alert("Error claiming token: " + error);
-    }
-}
+        <div id="claimSuccess" class="hidden">
+            <h2>Claim Successful!</h2>
+            <p>Your tokens have been claimed.</p>
+        </div>
+    </div>
 
-document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
-document.getElementById("createClaimLinkBtn").addEventListener("click", createClaimLink);
-document.getElementById("claimBtn").addEventListener("click", claimToken);
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.8/dist/ethers.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
