@@ -58,6 +58,7 @@ window.onload = function () {
     async function connectWallet() {
         if (window.ethereum) {
             try {
+                console.log("MetaMask detected, requesting accounts...");
                 // Request MetaMask connection
                 await window.ethereum.request({ method: "eth_requestAccounts" });
 
@@ -65,6 +66,8 @@ window.onload = function () {
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
                 currentWalletAddress = await signer.getAddress();
+
+                console.log("Wallet connected: " + currentWalletAddress);
 
                 // Display wallet address
                 document.getElementById("walletAddress").innerText = currentWalletAddress;
@@ -77,6 +80,7 @@ window.onload = function () {
                 document.getElementById("expireTimeContainer").classList.remove("hidden");
                 document.getElementById("createClaimLinkBtn").classList.remove("hidden");
             } catch (error) {
+                console.error("Error connecting to wallet: ", error);
                 alert("Error connecting to wallet: " + error);
             }
         } else {
@@ -142,6 +146,7 @@ window.onload = function () {
             document.getElementById("claimAmount").innerText = amount;
             document.getElementById("claimExpireTime").innerText = new Date(expireTimestamp * 1000).toLocaleString();
         } catch (error) {
+            console.error("Error creating claim link: ", error);
             alert("Error creating claim link: " + error);
         }
     }
@@ -156,11 +161,11 @@ window.onload = function () {
             await tx.wait();
             alert("Token claimed successfully!");
         } catch (error) {
+            console.error("Error claiming token: ", error);
             alert("Error claiming token: " + error);
         }
     }
 
     document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
     document.getElementById("createClaimLinkBtn").addEventListener("click", createClaimLink);
-    document.getElementById("claimBtn").addEventListener("click", claimToken);
 };
