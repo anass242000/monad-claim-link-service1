@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claim Link Service</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -20,6 +20,7 @@
 
         <div id="createClaimLinkForm" class="hidden">
             <h2>Create Claim Link</h2>
+
             <label for="tokenSelect">Choose Token:</label>
             <select id="tokenSelect">
                 <option value="0xE0590015A873bF326bd645c3E1266d4db41C4E6B">CHOG Token</option>
@@ -46,6 +47,17 @@
         </div>
 
         <p id="feeInfo" class="hidden">The service fee is 0.2 MONAD for creating the claim link.</p>
+
+        <div id="claimLinkInfo" class="hidden">
+            <p><strong>Token:</strong> <span id="claimToken"></span></p>
+            <p><strong>Amount:</strong> <span id="claimAmount"></span></p>
+            <p><strong>Expire Time:</strong> <span id="claimExpireTime"></span></p>
+        </div>
+
+        <div id="claimSuccess" class="hidden">
+            <h2>Claim Successful!</h2>
+            <p>Your tokens have been claimed.</p>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.8/dist/ethers.umd.min.js"></script>
