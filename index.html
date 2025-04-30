@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monad Claim Link</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f7f7f7;
+    }
+    h2 {
+      margin-top: 2rem;
+    }
+    input, select, button {
+      padding: 0.6rem;
+      margin-top: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+      display: block;
+    }
+    #walletInfo {
+      margin-bottom: 1rem;
+    }
+    #claimLinkOutput {
+      background: #e8f5e9;
+      padding: 1rem;
+      margin-top: 1rem;
+      border: 1px solid #c8e6c9;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Monad Token Claim Link Generator</h1>
+
+  <div id="walletInfo" class="hidden">
+    Connected Wallet: <strong id="walletAddress"></strong>
+  </div>
+  <button id="connectWalletBtn">Connect Wallet</button>
+
+  <h2>Create Claim Link</h2>
+
+  <label for="tokenSelect">Choose Token:</label>
+  <select id="tokenSelect">
+    <option value="native">MON (Native)</option>
+    <option value="0xE0590015A873bF326bd645c3E1266d4db41C4E6B">CHOG</option>
+    <option value="0x0F0BDEbF0F83cD1EE3974779Bcb7315f9808c714">DAK</option>
+    <option value="0xfe140e1dCe99Be9F4F15d657CD9b7BF622270C50">YAKI</option>
+  </select>
+
+  <label for="amountInput">Amount to send:</label>
+  <input type="number" id="amountInput" placeholder="Enter amount" />
+
+  <label for="expiryInput">Expire Time (in hours):</label>
+  <input type="number" id="expiryInput" placeholder="e.g., 24 for 1 day" />
+
+  <p><strong>Note:</strong> A service fee of <strong>0.2 MON</strong> will be charged for each link.</p>
+
+  <button id="createLinkBtn">Create Claim Link</button>
+
+  <div id="claimLinkOutput" class="hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
