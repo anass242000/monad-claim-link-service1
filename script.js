@@ -65,9 +65,16 @@ async function connectWallet() {
             signer = provider.getSigner();
             currentWalletAddress = await signer.getAddress();
 
+            // Display wallet address
             document.getElementById("walletAddress").innerText = currentWalletAddress;
+
+            // Remove hidden class to show further UI elements
             document.getElementById("walletInfo").classList.remove("hidden");
             document.getElementById("connectWalletBtn").classList.add("hidden");
+            document.getElementById("tokenSelectContainer").classList.remove("hidden");
+            document.getElementById("amountContainer").classList.remove("hidden");
+            document.getElementById("expireTimeContainer").classList.remove("hidden");
+            document.getElementById("createClaimLinkBtn").classList.remove("hidden");
         } catch (error) {
             alert("Error connecting to wallet: " + error);
         }
