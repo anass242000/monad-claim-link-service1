@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Claim Link</title>
+    <title>Claim Link Service</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,48 +11,56 @@
         <h1>Claim Link Service</h1>
 
         <div id="walletInfo" class="hidden">
-            <p>Wallet Address: <span id="walletAddress"></span></p>
+            <p>Connected Wallet: <span id="walletAddress"></span></p>
+        </div>
+        
+        <div id="connectWallet">
+            <button id="connectWalletBtn">Connect Wallet</button>
         </div>
 
-        <button id="connectWalletBtn">Connect Wallet</button>
-
-        <div id="claimLinkSection" class="hidden">
-            <h3>Create Claim Link</h3>
+        <div id="createClaimLinkForm" class="hidden">
+            <h2>Create Claim Link</h2>
 
             <label for="tokenSelect">Choose Token:</label>
             <select id="tokenSelect">
+                <option value="0xE0590015A873bF326bd645c3E1266d4db41C4E6B">CHOG Token</option>
+                <option value="0x0F0BDEbF0F83cD1EE3974779Bcb7315f9808c714">DAK Token</option>
+                <option value="0xfe140e1dCe99Be9F4F15d657CD9b7BF622270C50">YAKI Token</option>
                 <option value="0">MONAD</option>
-                <option value="0xE0590015A873bF326bd645c3E1266d4db41C4E6B">CHOG</option>
-                <option value="0x8aE599D8dbE745A809BCDb2be1a328881B410ebf">DAK</option>
-                <option value="0x7E1f2824416F5B705b5c8b2F6b41bc28e5608996">YAKI</option>
             </select>
 
             <label for="amount">Amount:</label>
-            <input type="number" id="amount" placeholder="Enter amount" required>
+            <input type="number" id="amount" placeholder="Amount" required>
 
             <label for="expireTime">Expire Time (hours):</label>
-            <input type="number" id="expireTime" placeholder="Enter expire time in hours" required>
+            <input type="number" id="expireTime" placeholder="Expiration time (hours)" required>
 
             <button id="createClaimLinkBtn">Create Claim Link</button>
         </div>
 
-        <div id="claimLinkInfo" class="hidden">
-            <h3>Claim Link Details:</h3>
-            <p>Claim Link: <a id="claimLink" target="_blank"></a></p>
-            <p>Token: <span id="claimToken"></span></p>
-            <p>Amount: <span id="claimAmount"></span></p>
-            <p>Expires: <span id="claimExpireTime"></span></p>
+        <div id="claimForm" class="hidden">
+            <h2>Claim Token</h2>
+            <label for="claimLink">Enter Claim ID:</label>
+            <input type="text" id="claimLink" placeholder="Claim ID" required>
+
+            <button id="claimBtn">Claim Token</button>
         </div>
 
-        <div id="claimSection" class="hidden">
-            <h3>Claim Token</h3>
-            <label for="claimLinkInput">Enter Claim ID:</label>
-            <input type="text" id="claimLink" placeholder="Enter claim ID" required>
-            <button id="claimBtn">Claim Token</button>
+        <p id="feeInfo" class="hidden">The service fee is 0.2 MONAD for creating the claim link.</p>
+
+        <div id="claimLinkInfo" class="hidden">
+            <p><strong>Token:</strong> <span id="claimToken"></span></p>
+            <p><strong>Amount:</strong> <span id="claimAmount"></span></p>
+            <p><strong>Expire Time:</strong> <span id="claimExpireTime"></span></p>
+        </div>
+
+        <div id="claimSuccess" class="hidden">
+            <h2>Claim Successful!</h2>
+            <p>Your tokens have been claimed.</p>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.8/dist/ethers.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
