@@ -52,7 +52,7 @@ async function createClaimLink() {
 
     try {
         const fee = await contract.FEE();
-        console.log("Fee:", fee.toString());
+        console.log("Fee (in wei):", fee.toString());
 
         const tx = await contract.createClaimLink(
             selectedTokenAddress,
