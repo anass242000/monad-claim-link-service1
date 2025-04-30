@@ -1,24 +1,86 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    background-color: #f4f4f4;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f7f9fc;
+  color: #333;
+  padding: 20px;
 }
 
-h1, h2 {
-    color: #333;
+.container {
+  max-width: 600px;
+  margin: auto;
 }
 
-input, select, button {
-    margin: 10px 0;
-    padding: 8px;
-    font-size: 16px;
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+.subheading {
+  font-size: 0.95rem;
+  color: #777;
+}
+
+.primary {
+  background-color: #005eff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.primary:hover {
+  background-color: #0045c7;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.success {
+  color: green;
+  word-break: break-all;
+}
+
+.note {
+  background: #fff3cd;
+  color: #856404;
+  padding: 8px;
+  border-radius: 6px;
+  margin: 10px 0;
 }
 
 .hidden {
-    display: none;
-}
-
-#claimLinkResult {
-    margin-top: 10px;
-    color: green;
+  display: none;
 }
