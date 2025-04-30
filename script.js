@@ -7,26 +7,10 @@ const contractABI = [
     },
     {
         "inputs": [
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "expireTime",
-                "type": "uint256"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "claimId",
-                "type": "bytes32"
-            }
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" },
+            { "internalType": "uint256", "name": "expireTime", "type": "uint256" },
+            { "internalType": "bytes32", "name": "claimId", "type": "bytes32" }
         ],
         "name": "createClaimLink",
         "outputs": [],
@@ -35,11 +19,7 @@ const contractABI = [
     },
     {
         "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "claimId",
-                "type": "bytes32"
-            }
+            { "internalType": "bytes32", "name": "claimId", "type": "bytes32" }
         ],
         "name": "claim",
         "outputs": [],
@@ -53,13 +33,13 @@ let signer;
 let contract;
 let currentWalletAddress = null;
 
-const feeAmount = ethers.utils.parseUnits("0.2", 18); // 0.2 MONAD
+const feeAmount = ethers.utils.parseUnits("0.2", 18); // 0.2 MONAD service fee
 
 async function connectWallet() {
     if (window.ethereum) {
         try {
             await window.ethereum.request({ method: "eth_requestAccounts" });
-            provider = new ethers.providers.Web3Provider(window.ethereum);  // Updated line
+            provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
             currentWalletAddress = await signer.getAddress();
             document.getElementById("walletAddress").innerText = currentWalletAddress;
@@ -69,7 +49,7 @@ async function connectWallet() {
             document.getElementById("claimForm").classList.remove("hidden");
             document.getElementById("feeInfo").classList.remove("hidden");
         } catch (error) {
-            alert("Error connecting to wallet: " + error);
+            alert("Error connecting to wallet: " + error.message);
         }
     } else {
         alert("Please install MetaMask!");
@@ -81,37 +61,47 @@ async function createClaimLink() {
     const amount = document.getElementById("amount").value;
     const expireTime = document.getElementById("expireTime").value;
     const claimId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`claim-${Date.now()}`));
-    const expireTimestamp = Math.floor(Date.now() / 1000) + expireTime * 3600; // hours to seconds
+    const expireTimestamp = Math.floor(Date.now() / 1000) + expireTime * 3600; // convert hours to seconds
 
     contract = new ethers.Contract(contractAddress, contractABI, signer);
 
     try {
+        const parsedAmount = ethers.utils.parseUnits(amount, 18);
         let tx;
-        if (selectedTokenAddress === "0") {
-            // Using MONAD, no token transfer required
-            tx = await contract.createClaimLink(selectedTokenAddress, ethers.utils.parseUnits(amount, 18), expireTimestamp, claimId, {
-                value: feeAmount
-            });
+
+        if (selectedTokenAddress.toLowerCase() === "native") {
+            tx = await contract.createClaimLink(
+                "0x0000000000000000000000000000000000000000", // native token address
+                parsedAmount,
+                expireTimestamp,
+                claimId,
+                { value: feeAmount.add(parsedAmount) }
+            );
         } else {
-            // Using ERC20 token
             const token = new ethers.Contract(selectedTokenAddress, [
                 "function approve(address spender, uint256 amount) public returns (bool)"
             ], signer);
-            await token.approve(contractAddress, ethers.utils.parseUnits(amount, 18));
 
-            tx = await contract.createClaimLink(selectedTokenAddress, ethers.utils.parseUnits(amount, 18), expireTimestamp, claimId, {
-                value: feeAmount
-            });
+            await token.approve(contractAddress, parsedAmount);
+
+            tx = await contract.createClaimLink(
+                selectedTokenAddress,
+                parsedAmount,
+                expireTimestamp,
+                claimId,
+                { value: feeAmount }
+            );
         }
 
         await tx.wait();
         alert("Claim link created successfully! Claim ID: " + claimId);
+
         document.getElementById("claimLinkInfo").classList.remove("hidden");
         document.getElementById("claimToken").innerText = selectedTokenAddress;
         document.getElementById("claimAmount").innerText = amount;
         document.getElementById("claimExpireTime").innerText = new Date(expireTimestamp * 1000).toLocaleString();
     } catch (error) {
-        alert("Error creating claim link: " + error);
+        alert("Error creating claim link: " + error.message);
     }
 }
 
@@ -125,7 +115,7 @@ async function claimToken() {
         await tx.wait();
         document.getElementById("claimSuccess").classList.remove("hidden");
     } catch (error) {
-        alert("Error claiming token: " + error);
+        alert("Error claiming token: " + error.message);
     }
 }
 
