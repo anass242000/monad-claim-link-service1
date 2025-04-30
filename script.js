@@ -45,6 +45,19 @@ const contractABI = [
         "outputs": [],
         "stateMutability": "payable",
         "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "FEE",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     }
 ];
 
@@ -52,7 +65,7 @@ let provider;
 let signer;
 let contract;
 let currentWalletAddress = null;
-const feeAmount = ethers.utils.parseEther("0.2");  // 0.2 MONAD service fee
+const feeAmount = ethers.utils.parseUnits("0.2", 18); // 0.2 MONAD fee
 
 async function connectWallet() {
     if (window.ethereum) {
@@ -64,7 +77,6 @@ async function connectWallet() {
             document.getElementById("walletAddress").innerText = currentWalletAddress;
             document.getElementById("walletInfo").classList.remove("hidden");
             document.getElementById("connectWalletBtn").classList.add("hidden");
-            document.getElementById("claimLinkSection").classList.remove("hidden");
         } catch (error) {
             alert("Error connecting to wallet: " + error);
         }
@@ -84,21 +96,37 @@ async function createClaimLink() {
 
     try {
         let tx;
+
         if (selectedTokenAddress === "0") {
-            // Using MONAD, no token transfer required
-            tx = await contract.createClaimLink(selectedTokenAddress, ethers.utils.parseUnits(amount, 18), expireTimestamp, claimId, {
-                value: feeAmount
-            });
+            // Using MONAD (native token), no ERC-20 approval needed
+            tx = await contract.createClaimLink(
+                selectedTokenAddress,
+                ethers.utils.parseUnits(amount, 18), // amount of MONAD
+                expireTimestamp,
+                claimId, 
+                {
+                    value: ethers.utils.parseUnits(amount, 18).add(feeAmount) // include fee and amount
+                }
+            );
         } else {
-            // Using ERC20 token
+            // Using ERC20 token, approve the contract to transfer tokens
             const token = new ethers.Contract(selectedTokenAddress, [
                 "function approve(address spender, uint256 amount) public returns (bool)"
             ], signer);
+
+            // Approve the contract to spend the specified amount of the ERC20 token
             await token.approve(contractAddress, ethers.utils.parseUnits(amount, 18));
 
-            tx = await contract.createClaimLink(selectedTokenAddress, ethers.utils.parseUnits(amount, 18), expireTimestamp, claimId, {
-                value: feeAmount
-            });
+            // Proceed to create claim link
+            tx = await contract.createClaimLink(
+                selectedTokenAddress,
+                ethers.utils.parseUnits(amount, 18),
+                expireTimestamp,
+                claimId,
+                {
+                    value: feeAmount // Only the fee needs to be sent for ERC20
+                }
+            );
         }
 
         await tx.wait();
