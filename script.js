@@ -69,7 +69,7 @@ async function createClaimLink() {
         const parsedAmount = ethers.utils.parseUnits(amount, 18);
         let tx;
 
-        if (selectedTokenAddress.toLowerCase() === "native") {
+        if (selectedTokenAddress === "0x0000000000000000000000000000000000000000") {
             tx = await contract.createClaimLink(
                 "0x0000000000000000000000000000000000000000", // native token address
                 parsedAmount,
