@@ -8,19 +8,6 @@ const contractABI = [
     {
         "inputs": [
             {
-                "internalType": "bytes32",
-                "name": "claimId",
-                "type": "bytes32"
-            }
-        ],
-        "name": "claim",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "address",
                 "name": "token",
                 "type": "address"
@@ -47,16 +34,16 @@ const contractABI = [
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "FEE",
-        "outputs": [
+        "inputs": [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
+                "internalType": "bytes32",
+                "name": "claimId",
+                "type": "bytes32"
             }
         ],
-        "stateMutability": "view",
+        "name": "claim",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     }
 ];
@@ -65,18 +52,22 @@ let provider;
 let signer;
 let contract;
 let currentWalletAddress = null;
-const feeAmount = ethers.utils.parseUnits("0.2", 18); // 0.2 MONAD fee
+
+const feeAmount = ethers.utils.parseUnits("0.2", 18); // 0.2 MONAD
 
 async function connectWallet() {
     if (window.ethereum) {
         try {
             await window.ethereum.request({ method: "eth_requestAccounts" });
-            provider = new ethers.BrowserProvider(window.ethereum);
+            provider = new ethers.providers.Web3Provider(window.ethereum);  // Updated line
             signer = provider.getSigner();
             currentWalletAddress = await signer.getAddress();
             document.getElementById("walletAddress").innerText = currentWalletAddress;
             document.getElementById("walletInfo").classList.remove("hidden");
             document.getElementById("connectWalletBtn").classList.add("hidden");
+            document.getElementById("createClaimLinkForm").classList.remove("hidden");
+            document.getElementById("claimForm").classList.remove("hidden");
+            document.getElementById("feeInfo").classList.remove("hidden");
         } catch (error) {
             alert("Error connecting to wallet: " + error);
         }
@@ -147,6 +138,7 @@ async function createClaimLink() {
     }
 }
 
+
 async function claimToken() {
     const claimId = document.getElementById("claimLink").value;
 
@@ -155,7 +147,7 @@ async function claimToken() {
     try {
         const tx = await contract.claim(claimId);
         await tx.wait();
-        alert("Token claimed successfully!");
+        document.getElementById("claimSuccess").classList.remove("hidden");
     } catch (error) {
         alert("Error claiming token: " + error);
     }
