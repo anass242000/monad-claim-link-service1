@@ -8,6 +8,19 @@ const contractABI = [
     {
         "inputs": [
             {
+                "internalType": "bytes32",
+                "name": "claimId",
+                "type": "bytes32"
+            }
+        ],
+        "name": "claim",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "token",
                 "type": "address"
@@ -32,19 +45,6 @@ const contractABI = [
         "outputs": [],
         "stateMutability": "payable",
         "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "claimId",
-                "type": "bytes32"
-            }
-        ],
-        "name": "claim",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
     }
 ];
 
@@ -52,22 +52,19 @@ let provider;
 let signer;
 let contract;
 let currentWalletAddress = null;
-
-const feeAmount = ethers.utils.parseUnits("0.2", 18); // 0.2 MONAD
+const feeAmount = ethers.utils.parseEther("0.2");  // 0.2 MONAD service fee
 
 async function connectWallet() {
     if (window.ethereum) {
         try {
             await window.ethereum.request({ method: "eth_requestAccounts" });
-            provider = new ethers.providers.Web3Provider(window.ethereum);  // Updated line
+            provider = new ethers.BrowserProvider(window.ethereum);
             signer = provider.getSigner();
             currentWalletAddress = await signer.getAddress();
             document.getElementById("walletAddress").innerText = currentWalletAddress;
             document.getElementById("walletInfo").classList.remove("hidden");
             document.getElementById("connectWalletBtn").classList.add("hidden");
-            document.getElementById("createClaimLinkForm").classList.remove("hidden");
-            document.getElementById("claimForm").classList.remove("hidden");
-            document.getElementById("feeInfo").classList.remove("hidden");
+            document.getElementById("claimLinkSection").classList.remove("hidden");
         } catch (error) {
             alert("Error connecting to wallet: " + error);
         }
@@ -106,7 +103,14 @@ async function createClaimLink() {
 
         await tx.wait();
         alert("Claim link created successfully! Claim ID: " + claimId);
+
+        // Construct the claim link URL
+        const claimLinkUrl = window.location.href + `?claimId=${claimId}`;
+        
+        // Show claim link details
         document.getElementById("claimLinkInfo").classList.remove("hidden");
+        document.getElementById("claimLink").innerText = claimLinkUrl;
+        document.getElementById("claimLink").setAttribute("href", claimLinkUrl);  // Make it a clickable link
         document.getElementById("claimToken").innerText = selectedTokenAddress;
         document.getElementById("claimAmount").innerText = amount;
         document.getElementById("claimExpireTime").innerText = new Date(expireTimestamp * 1000).toLocaleString();
@@ -123,7 +127,7 @@ async function claimToken() {
     try {
         const tx = await contract.claim(claimId);
         await tx.wait();
-        document.getElementById("claimSuccess").classList.remove("hidden");
+        alert("Token claimed successfully!");
     } catch (error) {
         alert("Error claiming token: " + error);
     }
