@@ -70,7 +70,7 @@ async function connectWallet() {
     if (window.ethereum) {
         try {
             await window.ethereum.request({ method: "eth_requestAccounts" });
-            provider = new ethers.providers.Web3Provider(window.ethereum);
+            provider = new ethers.BrowserProvider(window.ethereum);
 			signer = provider.getSigner();
             currentWalletAddress = await signer.getAddress();
             document.getElementById("walletAddress").innerText = currentWalletAddress;
