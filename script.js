@@ -45,19 +45,6 @@ const contractABI = [
         "outputs": [],
         "stateMutability": "payable",
         "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "FEE",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
     }
 ];
 
@@ -70,11 +57,14 @@ const feeAmount = ethers.utils.parseUnits("0.2", 18); // 0.2 MONAD fee
 async function connectWallet() {
     if (window.ethereum) {
         try {
+            // Request MetaMask connection
             await window.ethereum.request({ method: "eth_requestAccounts" });
-            // Remove ENS-specific methods
-            provider = new ethers.JsonRpcProvider(window.ethereum);
+
+            // Use Web3Provider instead of JsonRpcProvider
+            provider = new ethers.providers.Web3Provider(window.ethereum);
             signer = provider.getSigner();
             currentWalletAddress = await signer.getAddress();
+
             document.getElementById("walletAddress").innerText = currentWalletAddress;
             document.getElementById("walletInfo").classList.remove("hidden");
             document.getElementById("connectWalletBtn").classList.add("hidden");
