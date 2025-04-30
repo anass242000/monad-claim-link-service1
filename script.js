@@ -122,3 +122,21 @@ async function claimToken() {
 document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
 document.getElementById("createClaimLinkBtn").addEventListener("click", createClaimLink);
 document.getElementById("claimBtn").addEventListener("click", claimToken);
+
+window.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const claimIdParam = urlParams.get("claimId");
+
+    if (claimIdParam) {
+        document.getElementById("claimLink").value = claimIdParam;
+
+        // Show only claim UI
+        document.getElementById("connectWalletBtn").classList.remove("hidden");
+        document.getElementById("claimForm").classList.remove("hidden");
+        document.getElementById("createClaimLinkForm").classList.add("hidden");
+        document.getElementById("feeInfo").classList.add("hidden");
+
+        // Optionally scroll to claim form
+        document.getElementById("claimForm").scrollIntoView({ behavior: "smooth" });
+    }
+});
