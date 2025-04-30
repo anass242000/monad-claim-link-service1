@@ -31,16 +31,29 @@ async function connectWallet() {
 }
 
 async function createClaimLink() {
+    console.log("Create Claim Link clicked");
+
     const tokenSymbol = document.getElementById("tokenSelect").value;
     const selectedTokenAddress = tokenList[tokenSymbol];
     const amount = document.getElementById("amount").value;
-    const claimId = ethers.id("claim-" + Date.now()); // safer & Ethers v6-style hash
-    const expireTime = Math.floor(Date.now() / 1000) + 3600; // expires in 1 hour
+
+    console.log("Selected token:", tokenSymbol);
+    console.log("Amount:", amount);
+
+    if (!amount || isNaN(amount)) {
+        alert("Please enter a valid amount");
+        return;
+    }
+
+    const claimId = ethers.id("claim-" + Date.now());
+    const expireTime = Math.floor(Date.now() / 1000) + 3600;
 
     contract = new ethers.Contract(contractAddress, contractABI, signer);
 
     try {
         const fee = await contract.FEE();
+        console.log("Fee:", fee.toString());
+
         const tx = await contract.createClaimLink(
             selectedTokenAddress,
             ethers.parseUnits(amount, 18),
@@ -52,13 +65,12 @@ async function createClaimLink() {
 
         const claimLink = `${window.location.origin}/claim#${claimId}`;
         alert(`✅ Claim link created!\nToken: ${tokenSymbol}\nAmount: ${amount}\nLink: ${claimLink}`);
-
-        document.getElementById("selectedToken").innerText = tokenSymbol;
-        document.getElementById("claimOutput").innerText = claimLink;
     } catch (error) {
+        console.error("Error:", error);
         alert("Error creating claim link: " + error.message);
     }
 }
+
 
 async function claimToken() {
     const claimId = document.getElementById("claimLink").value;
